@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 flask
 gunicorn
 requests
@@ -13,8 +13,4 @@ flask-whooshalchemy
 flask-socketio
 flask-redis
 flask-migrate
-=======
-gunicorn
-flask
-flask_sqlalchemy
->>>>>>> origin/main
+
