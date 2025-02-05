@@ -1,0 +1,14 @@
+flask
+gunicorn
+requests
+flask-cors
+flask-restful
+flask-sqlalchemy
+flask-login
+flask-bcrypt
+flask-wtf
+flask-mail
+flask-whooshalchemy
+flask-socketio
+flask-redis
+flask-migrate

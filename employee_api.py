@@ -1,7 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS  # Add CORS support
 
 app = Flask(__name__)
+
+# Enable CORS
+CORS(app)
 
 # Database Configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:12345678@localhost/employee_db'
@@ -27,62 +31,75 @@ with app.app_context():
 # GET all employees
 @app.route('/employees', methods=['GET'])
 def get_employees():
-    employees = Employee.query.all()
-    employee_list = [
-        {"id": emp.id, "name": emp.name, "role": emp.role, "department": emp.department}
-        for emp in employees
-    ]
-    return jsonify(employee_list), 200
+    try:
+        employees = Employee.query.all()
+        employee_list = [
+            {"id": emp.id, "name": emp.name, "role": emp.role, "department": emp.department}
+            for emp in employees
+        ]
+        return jsonify({"status": "success", "data": employee_list}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 # POST a new employee
 @app.route('/employees', methods=['POST'])
 def add_employee():
     data = request.json
     required_fields = ['id', 'name', 'role', 'department']
+    
     # Validate required fields
     for field in required_fields:
         if field not in data:
-            return jsonify({"error": f"Missing field: {field}"}), 400
+            return jsonify({"status": "error", "message": f"Missing field: {field}"}), 400
 
     # Check for duplicate ID
     if Employee.query.get(data['id']):
-        return jsonify({"error": "Employee with this ID already exists"}), 400
+        return jsonify({"status": "error", "message": "Employee with this ID already exists"}), 400
 
-    new_employee = Employee(
-        id=data['id'],
-        name=data['name'],
-        role=data['role'],
-        department=data['department']
-    )
-    db.session.add(new_employee)
-    db.session.commit()
-    return jsonify({"message": "Employee added successfully!"}), 201
+    try:
+        new_employee = Employee(
+            id=data['id'],
+            name=data['name'],
+            role=data['role'],
+            department=data['department']
+        )
+        db.session.add(new_employee)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Employee added successfully!"}), 201
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 # PUT (update) an employee by ID
 @app.route('/employees/<int:id>', methods=['PUT'])
 def update_employee(id):
     employee = Employee.query.get(id)
     if not employee:
-        return jsonify({"error": f"Employee with ID {id} not found"}), 404
+        return jsonify({"status": "error", "message": f"Employee with ID {id} not found"}), 404
 
     data = request.json
-    employee.name = data.get('name', employee.name)
-    employee.role = data.get('role', employee.role)
-    employee.department = data.get('department', employee.department)
+    try:
+        employee.name = data.get('name', employee.name)
+        employee.role = data.get('role', employee.role)
+        employee.department = data.get('department', employee.department)
 
-    db.session.commit()
-    return jsonify({"message": "Employee updated successfully!"}), 200
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Employee updated successfully!"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 # DELETE an employee by ID
 @app.route('/employees/<int:id>', methods=['DELETE'])
 def delete_employee(id):
     employee = Employee.query.get(id)
     if not employee:
-        return jsonify({"error": f"Employee with ID {id} not found"}), 404
+        return jsonify({"status": "error", "message": f"Employee with ID {id} not found"}), 404
 
-    db.session.delete(employee)
-    db.session.commit()
-    return jsonify({"message": "Employee deleted successfully!"}), 200
+    try:
+        db.session.delete(employee)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Employee deleted successfully!"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
