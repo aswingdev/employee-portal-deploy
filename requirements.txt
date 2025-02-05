@@ -1,4 +1,4 @@
-<<<<<<< Updated upstream
+
 mysql
 mysql-connector-python
 
@@ -16,8 +16,6 @@ flask-whooshalchemy
 flask-socketio
 flask-redis
 flask-migrate
-
-=======
 flask
 gunicorn
 requests
@@ -33,4 +31,4 @@ flask-socketio
 flask-redis
 flask-migrate
 pymysql
->>>>>>> Stashed changes
+
